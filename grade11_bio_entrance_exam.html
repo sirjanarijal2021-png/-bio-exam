@@ -1,0 +1,230 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bio: #1D9E75;
+    --bio-light: #E1F5EE;
+    --bio-dark: #085041;
+    --accent: #378ADD;
+    --danger: #E24B4A;
+    --warn: #EF9F27;
+    --text: var(--color-text-primary);
+    --muted: var(--color-text-secondary);
+    --card: var(--color-background-primary);
+    --border: var(--color-border-tertiary);
+  }
+  body { font-family: 'Share Tech Mono', monospace; }
+  #app { padding: 1.5rem 0; max-width: 660px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 2rem; }
+  .header-badge { display: inline-block; background: var(--bio); color: white; font-size: 11px; letter-spacing: 2px; padding: 4px 16px; border-radius: 2px; margin-bottom: 12px; font-family: 'Orbitron', sans-serif; }
+  .header h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: 1px; }
+  .header p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .progress-bar-wrap { background: var(--color-background-secondary); border-radius: 2px; height: 6px; margin: 1rem 0 0.5rem; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--bio); transition: width 0.4s ease; border-radius: 2px; }
+  .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; }
+  .timer { color: var(--bio); font-weight: 700; font-size: 14px; }
+  .timer.urgent { color: var(--danger); animation: pulse 0.5s infinite alternate; }
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+  .question-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .q-num { font-size: 11px; letter-spacing: 2px; color: var(--bio); font-family: 'Orbitron', sans-serif; margin-bottom: 8px; }
+  .q-text { font-size: 15px; color: var(--text); line-height: 1.6; font-family: 'Share Tech Mono', monospace; }
+  .options { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border: 0.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; background: var(--card); }
+  .option:hover:not(.disabled) { border-color: var(--bio); background: var(--bio-light); }
+  .option.selected { border-color: var(--accent); background: #E6F1FB; }
+  .option.correct { border-color: var(--bio); background: var(--bio-light); }
+  .option.wrong { border-color: var(--danger); background: #FCEBEB; }
+  .option.disabled { cursor: default; }
+  .opt-letter { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; font-family: 'Orbitron', sans-serif; margin-top: 1px; }
+  .option.selected .opt-letter { background: var(--accent); color: white; border-color: var(--accent); }
+  .option.correct .opt-letter { background: var(--bio); color: white; border-color: var(--bio); }
+  .option.wrong .opt-letter { background: var(--danger); color: white; border-color: var(--danger); }
+  .opt-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .explanation { margin-top: 12px; padding: 10px 14px; background: var(--bio-light); border-left: 3px solid var(--bio); border-radius: 0 6px 6px 0; font-size: 12px; color: var(--bio-dark); line-height: 1.6; display: none; }
+  .btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; gap: 10px; }
+  .btn { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 1px; padding: 10px 20px; border-radius: 6px; border: 0.5px solid var(--border); cursor: pointer; background: var(--card); color: var(--text); transition: all 0.15s; }
+  .btn:hover { background: var(--color-background-secondary); }
+  .btn-primary { background: var(--bio); color: white; border-color: var(--bio); }
+  .btn-primary:hover { background: var(--bio-dark); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .score-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
+  .score-big { font-family: 'Orbitron', sans-serif; font-size: 56px; font-weight: 900; color: var(--bio); line-height: 1; margin: 1rem 0 0.5rem; }
+  .score-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+  .grade-badge { display: inline-block; font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; padding: 8px 24px; border-radius: 6px; margin-bottom: 1.5rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 1.5rem 0; }
+  .stat-box { background: var(--color-background-secondary); border-radius: 8px; padding: 12px; }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .stat-val { font-size: 20px; font-weight: 700; font-family: 'Orbitron', sans-serif; color: var(--text); margin-top: 4px; }
+  .review-list { margin-top: 1.5rem; text-align: left; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+  .review-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px; border: 0.5px solid var(--border); border-radius: 8px; font-size: 12px; }
+  .review-icon { font-size: 16px; flex-shrink: 0; }
+  .intro-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
+  .intro-card p { color: var(--muted); font-size: 13px; line-height: 1.8; margin-bottom: 1.5rem; }
+  .rules { text-align: left; background: var(--color-background-secondary); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 13px; color: var(--text); }
+  .rules li { margin: 6px 0; list-style: none; padding-left: 0; }
+  .rules li::before { content: '▸ '; color: var(--bio); }
+</style>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Grade 11 Biology Entrance Examination — 20 multiple choice questions with timer and score tracking</h2>
+<div id="app">
+  <div class="header">
+    <div class="header-badge">ENTRANCE EXAMINATION</div>
+    <h1>BIOLOGY — GRADE 11</h1>
+    <p>Academic Year 2026 · Official Assessment</p>
+  </div>
+  <div id="screen-intro">
+    <div class="intro-card">
+      <p>Welcome to the Grade 11 Biology Entrance Exam. This exam covers fundamental concepts in cell biology, genetics, ecology, human anatomy, and more.</p>
+      <ul class="rules">
+        <li>20 multiple choice questions</li>
+        <li>30 minutes time limit</li>
+        <li>Each question is worth 5 points (100 total)</li>
+        <li>You cannot go back to previous questions</li>
+        <li>Feedback shown after each answer</li>
+      </ul>
+      <button class="btn btn-primary" onclick="startExam()">START EXAM ▶</button>
+    </div>
+  </div>
+  <div id="screen-exam" style="display:none">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog"></div></div>
+    <div class="meta">
+      <span id="q-counter">Question 1 of 20</span>
+      <span class="timer" id="timer">30:00</span>
+    </div>
+    <div id="q-area"></div>
+  </div>
+  <div id="screen-result" style="display:none"></div>
+</div>
+<script>
+const questions = [
+  { q: "What is the basic structural and functional unit of all living organisms?", opts: ["Atom","Molecule","Cell","Organ"], ans: 2, exp: "The cell is the fundamental unit of life. All living organisms are composed of cells, which carry out the essential functions necessary for life." },
+  { q: "Which organelle is known as the 'powerhouse of the cell'?", opts: ["Nucleus","Ribosome","Mitochondria","Chloroplast"], ans: 2, exp: "Mitochondria produce ATP through cellular respiration, supplying energy to the cell — earning the nickname 'powerhouse of the cell.'" },
+  { q: "The process by which plants make their own food using sunlight is called:", opts: ["Respiration","Photosynthesis","Fermentation","Transpiration"], ans: 1, exp: "Photosynthesis converts light energy, CO₂, and water into glucose and oxygen. It occurs mainly in chloroplasts using the pigment chlorophyll." },
+  { q: "DNA is found mainly in which cell organelle?", opts: ["Mitochondria","Ribosome","Nucleus","Vacuole"], ans: 2, exp: "The nucleus contains the cell's genetic material (DNA) organized into chromosomes. Note: mitochondria also have their own small DNA." },
+  { q: "Which type of cell division results in four genetically unique daughter cells?", opts: ["Mitosis","Binary fission","Meiosis","Budding"], ans: 2, exp: "Meiosis produces four haploid daughter cells that are genetically different from each other due to crossing over and random assortment of chromosomes." },
+  { q: "What is the molecule that carries genetic information from the nucleus to ribosomes?", opts: ["DNA","tRNA","mRNA","rRNA"], ans: 2, exp: "Messenger RNA (mRNA) carries the genetic code from DNA in the nucleus to ribosomes in the cytoplasm, where proteins are synthesized." },
+  { q: "In Mendelian genetics, what term describes an allele that is expressed even when only one copy is present?", opts: ["Recessive","Dominant","Codominant","Incomplete"], ans: 1, exp: "A dominant allele is expressed in the phenotype whenever it is present, even if only one copy exists (heterozygous condition)." },
+  { q: "Which blood type is known as the 'universal donor'?", opts: ["Type A","Type B","Type AB","Type O"], ans: 3, exp: "Type O negative blood has no A, B, or Rh antigens, making it compatible with all blood types. However, Type O+ is often called 'universal donor' for red cells in non-emergency situations." },
+  { q: "What is the role of the ribosome in a cell?", opts: ["Energy production","Protein synthesis","DNA replication","Lipid storage"], ans: 1, exp: "Ribosomes are the site of protein synthesis (translation). They read mRNA sequences and assemble amino acids into polypeptide chains." },
+  { q: "Which part of the human brain controls balance and coordination?", opts: ["Cerebrum","Cerebellum","Medulla oblongata","Hypothalamus"], ans: 1, exp: "The cerebellum, located at the back of the brain, coordinates voluntary movements, balance, and fine motor skills." },
+  { q: "Osmosis is the movement of water molecules from a region of:", opts: ["High solute to low solute concentration","Low water to high water potential","High water to low water potential","Low temperature to high temperature"], ans: 2, exp: "Osmosis is the diffusion of water through a semipermeable membrane from a region of high water potential (low solute) to low water potential (high solute)." },
+  { q: "Which gas is primarily responsible for the greenhouse effect?", opts: ["Oxygen","Nitrogen","Carbon dioxide","Argon"], ans: 2, exp: "Carbon dioxide (CO₂) is the primary greenhouse gas produced by human activities. It traps heat in the atmosphere, contributing to global warming." },
+  { q: "The Hardy-Weinberg principle describes a population that is in:", opts: ["Rapid evolution","Genetic equilibrium","Genetic drift","Natural selection"], ans: 1, exp: "The Hardy-Weinberg equilibrium describes a non-evolving population where allele frequencies remain constant across generations under specific conditions." },
+  { q: "What type of bond holds the two strands of DNA together?", opts: ["Covalent bond","Ionic bond","Hydrogen bond","Peptide bond"], ans: 2, exp: "Complementary base pairs (A-T, G-C) in the double helix are held together by hydrogen bonds. These weak bonds allow DNA strands to separate during replication and transcription." },
+  { q: "Which enzyme is responsible for breaking down hydrogen peroxide in cells?", opts: ["Amylase","Lipase","Catalase","Protease"], ans: 2, exp: "Catalase is an enzyme found in peroxisomes that catalyzes the decomposition of hydrogen peroxide (H₂O₂) into water and oxygen, protecting cells from oxidative damage." },
+  { q: "What is the term for organisms that break down dead organic matter?", opts: ["Producers","Consumers","Decomposers","Parasites"], ans: 2, exp: "Decomposers (bacteria and fungi) break down dead organic material, recycling nutrients back into the ecosystem. They are essential for nutrient cycling." },
+  { q: "Which part of the heart pumps oxygenated blood to the entire body?", opts: ["Right atrium","Right ventricle","Left atrium","Left ventricle"], ans: 3, exp: "The left ventricle has thick muscular walls and pumps oxygenated blood received from the left atrium into the aorta and then throughout the body." },
+  { q: "Chromosomes are made up of DNA and which protein?", opts: ["Actin","Histone","Keratin","Collagen"], ans: 1, exp: "Chromosomes are composed of DNA wrapped around histone proteins, forming a structure called chromatin. This allows long DNA molecules to be compactly stored in the nucleus." },
+  { q: "Which of the following is NOT a characteristic of living organisms?", opts: ["Growth and development","Reproduction","Crystallization","Response to stimuli"], ans: 2, exp: "Crystallization is a physical/chemical process — not a characteristic of living organisms. All living things exhibit growth, reproduction, and response to stimuli." },
+  { q: "What is the term for the complete set of genetic material in an organism?", opts: ["Proteome","Genome","Transcriptome","Phenome"], ans: 1, exp: "The genome is the complete set of DNA of an organism, including all of its genes. The human genome contains approximately 3 billion base pairs and about 20,000–25,000 genes." }
+];
+
+let current = 0, score = 0, answered = false, timerInt = null, timeLeft = 1800;
+const results = [];
+
+function startExam() {
+  document.getElementById('screen-intro').style.display = 'none';
+  document.getElementById('screen-exam').style.display = 'block';
+  renderQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  timerInt = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft/60), s = timeLeft%60;
+    const el = document.getElementById('timer');
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.classList.toggle('urgent', timeLeft <= 60);
+    if(timeLeft <= 0) { clearInterval(timerInt); showResult(); }
+  }, 1000);
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const pct = (current / 20) * 100;
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Question ${current+1} of 20`;
+  answered = false;
+  document.getElementById('q-area').innerHTML = `
+    <div class="question-card">
+      <div class="q-num">Q${String(current+1).padStart(2,'0')} / 20</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts">
+        ${q.opts.map((o,i) => `<div class="option" id="opt${i}" onclick="selectAnswer(${i})"><span class="opt-letter">${'ABCD'[i]}</span><span class="opt-text">${o}</span></div>`).join('')}
+      </div>
+      <div class="explanation" id="exp">${q.exp}</div>
+    </div>
+    <div class="btn-row">
+      <span style="font-size:12px;color:var(--muted)">Select an answer to continue</span>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>${current === 19 ? 'FINISH ▶' : 'NEXT ▶'}</button>
+    </div>
+  `;
+}
+
+function selectAnswer(i) {
+  if(answered) return;
+  answered = true;
+  const q = questions[current];
+  const isCorrect = i === q.ans;
+  if(isCorrect) score++;
+  results.push({ q: q.q, chosen: q.opts[i], correct: q.opts[q.ans], ok: isCorrect });
+  document.querySelectorAll('.option').forEach((el,idx) => {
+    el.classList.add('disabled');
+    if(idx === q.ans) el.classList.add('correct');
+    else if(idx === i && !isCorrect) el.classList.add('wrong');
+  });
+  document.getElementById('exp').style.display = 'block';
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() {
+  current++;
+  if(current >= 20) { clearInterval(timerInt); showResult(); }
+  else renderQuestion();
+}
+
+function showResult() {
+  document.getElementById('screen-exam').style.display = 'none';
+  const rs = document.getElementById('screen-result');
+  rs.style.display = 'block';
+  const pct = score * 5;
+  const timeUsed = 1800 - timeLeft;
+  const mm = Math.floor(timeUsed/60), ss = timeUsed%60;
+  let grade, gradeColor, gradeMsg;
+  if(pct >= 90) { grade='A+'; gradeColor='background:#E1F5EE;color:#085041'; gradeMsg='Outstanding!'; }
+  else if(pct >= 80) { grade='A'; gradeColor='background:#E1F5EE;color:#085041'; gradeMsg='Excellent work!'; }
+  else if(pct >= 70) { grade='B'; gradeColor='background:#E6F1FB;color:#0C447C'; gradeMsg='Good performance!'; }
+  else if(pct >= 60) { grade='C'; gradeColor='background:#FAEEDA;color:#633806'; gradeMsg='Satisfactory.'; }
+  else if(pct >= 50) { grade='D'; gradeColor='background:#FAECE7;color:#712B13'; gradeMsg='Needs improvement.'; }
+  else { grade='F'; gradeColor='background:#FCEBEB;color:#791F1F'; gradeMsg='Study harder!'; }
+
+  rs.innerHTML = `
+    <div class="score-card">
+      <div class="q-num" style="font-size:11px;letter-spacing:2px;color:var(--bio);font-family:Orbitron,sans-serif">EXAM COMPLETE</div>
+      <div class="score-big">${pct}%</div>
+      <div class="score-sub">${score} out of 20 correct</div>
+      <div class="grade-badge" style="${gradeColor}">GRADE: ${grade} — ${gradeMsg}</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-label">CORRECT</div><div class="stat-val" style="color:var(--bio)">${score}</div></div>
+        <div class="stat-box"><div class="stat-label">WRONG</div><div class="stat-val" style="color:var(--danger)">${20-score}</div></div>
+        <div class="stat-box"><div class="stat-label">TIME</div><div class="stat-val">${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1px">ANSWER REVIEW</div>
+      <div class="review-list">
+        ${results.map((r,i) => `
+          <div class="review-item">
+            <span class="review-icon" aria-hidden="true">${r.ok ? '✅' : '❌'}</span>
+            <div>
+              <div style="font-weight:500;font-size:12px;color:var(--text);margin-bottom:3px">Q${i+1}: ${r.q}</div>
+              ${!r.ok ? `<div style="font-size:11px;color:var(--danger)">Your answer: ${r.chosen}</div><div style="font-size:11px;color:var(--bio)">Correct: ${r.correct}</div>` : `<div style="font-size:11px;color:var(--bio)">✓ ${r.correct}</div>`}
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:1.5rem">
+        <button class="btn btn-primary" onclick="location.reload()">RETAKE EXAM ↺</button>
+      </div>
+    </div>
+  `;
+}
+</script>
